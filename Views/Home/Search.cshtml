@@ -1,0 +1,79 @@
+﻿@using WebApplication7.Models
+@model IEnumerable<string>
+@{
+    ViewBag.Title = "Search";
+}
+
+<h2>Search</h2>
+@*#1*@
+@*<div class="form-horizontal">
+        @using(Ajax.BeginForm("SearchRes", new AjaxOptions { UpdateTargetId="results", InsertionMode=InsertionMode.InsertAfter, LoadingElementId="loading", OnBegin="OnBegin", OnComplete="OnComplete", OnSuccess="OnSuccess", OnFailure="OnFailure"}))
+
+        {
+            <div class="form-group">
+                <label>Category</label>
+                <input type="text" name="category"/>
+            </div>
+            <input type="submit" value="Search" />
+        }
+    </div>*@
+
+
+@*#2 Json*@
+@*@using (Ajax.BeginForm("JsonSearch", new AjaxOptions {OnSuccess = "MyOnSuccess"}))
+    {
+        <div class="form-group">
+            <label>Category</label>
+            <input type="text" name="category" />
+        </div>
+        <input type="submit" value="Search" />
+    }*@
+<div class="form-horizontal">
+    <div class="form-group">
+        <label>Category</label>
+        <input type="text" name="category" id="searchCategory" />
+    </div>
+    <input type="submit" value="Search" id="serachBtn" />
+ </div>
+    @foreach (string item in Model)
+    {
+        @Ajax.ActionLink(item, "SearchRes", new { category = item }, new AjaxOptions { UpdateTargetId = "results" })
+    }
+    <div id="results"></div>
+    <img src="~/Content/Images/cat.gif" style="display: none; width:100px; height:100px" id="loading" />
+    @section scripts{
+        <script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+        <script type="text/javascript">
+            function MyOnSuccess(data) {
+                var results = $("#results");
+                results.empty();
+                for (var i = 0; i < data.length; i++) {
+                    results.append("<li>" + data[i].Title + "</li>");
+                }
+            }
+            function OnBegin() {
+                var time = new Date();
+                console.log("Start of query: " + time.toLocaleString("ru"));
+            }
+            function OnFailrue(request, error) {
+                console.log("Error:");
+                console.log(error);
+            }
+            function OnComplete(request, status) {
+
+                console.log(status);
+            }
+            function OnSuccess(data) {
+                console.log("Query was successfull");
+                console.log(data);
+            }
+            $(document).ready(
+                $("#searchBtn").click(function (e) {
+                    e.preventDefault();
+                    var cat = $("#searchCategory").val();
+                    cat = encodeURIComponent(cat);
+                    $("#results").load('@Url.Action("SearchRes")/?category=' + cat);
+                })
+            )
+        </script>
+    }
